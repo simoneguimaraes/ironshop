@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 const DishModel = require("../models/Dish.model");
 
-router.post("/dish", async (req, res) => {
+// CREATE a new dish
+router.post("/dish", isAuthenticated, async (req, res) => {
     try {
       console.log(req.body);        
       const result = await DishModel.create(req.body);        
@@ -13,7 +14,8 @@ router.post("/dish", async (req, res) => {
     }
   });
 
-  router.get("/dish", async (req, res) => {
+// List of ALL dishes 
+  router.get("/dish", isAuthenticated, async (req, res) => {
     try {
       
       const dishs = await DishModel.find();
@@ -25,7 +27,8 @@ router.post("/dish", async (req, res) => {
     }
   });
 
-  router.get("/dish/:id", async (req, res) => {
+// FIND a specific dish  
+  router.get("/dish/:id", isAuthenticated, async (req, res) => {
     try {
 
       const dish = await DishModel.findOne({ _id: req.params.id });
@@ -41,7 +44,8 @@ router.post("/dish", async (req, res) => {
     }
   });
 
-  router.patch("/dish/:id", async (req, res) => {
+// UPDATE a dish's information
+  router.patch("/dish/:id", isAuthenticated,  async (req, res) => {
     try {
 
       const result = await DishModel.findOneAndUpdate(
@@ -61,7 +65,8 @@ router.post("/dish", async (req, res) => {
     }
   });
 
-  router.delete("/dish/:id", async (req, res) => {
+// DELETE a specific dish  
+  router.delete("/dish/:id", isAuthenticated,  async (req, res) => {
     try {
       const result = await DishModel.deleteOne({ _id: req.params.id });
   
@@ -75,5 +80,13 @@ router.post("/dish", async (req, res) => {
       res.status(500).json(err);
     }
   });
+
+  // famsfklmamkdfa
+  // fmasçlfdmdsaçmfkdlasmf
+  // msdfkmasfmasklfmsadf
+  // maskçldfmdasçklfmaslfd
+  // fmsdlfmasçmfçsadmf
+  // fkasmfçlsamfmsakf
+  // kafmslkadmfsakçmkçfsdf
   
   module.exports = router;
