@@ -1,6 +1,6 @@
 const express = require("express")
 
-const router = mongoose.Router()
+const router = express.Router()
 
 
 module.exports = router
