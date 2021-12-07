@@ -1,9 +1,4 @@
 const router = require("express").Router();
-const express = require("express");
-
-const UserModel = require("../models/User.model");
-const generateToken = require("../config/jwt.config");
-const attachCurrentUser = require("../middlewares/attachCurrentUser");
 
 const isAuthenticated = require("../middlewares/isAuthenticated");
 const isAdmin = require("../middlewares/isAuthenticated");
@@ -93,9 +88,6 @@ router.get("/establishment/:id", isAuthenticated, async (req, res) => {
     res.status(500).json(err);
   }
 });
-
-// PUT => substituição (destrutiva)
-// PATCH => atualização (não-destrutiva)
 
 // crUd Update (PATCH) - só admin
 router.patch(
