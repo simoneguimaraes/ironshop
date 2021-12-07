@@ -11,9 +11,11 @@ app.use(cors({ origin: process.env.REACT_APP_URL }));
 
 // const userRouter = require("./routes/user.routes");
 const establishmentRouter = require("./routes/establishment.routes");
+const deliveryRouter = require("./routes/delivery.routes")
 
 // app.use("/api", userRouter);
 app.use("/api", establishmentRouter);
+app.use("/api", deliveryRouter)
 
 app.listen(Number(process.env.PORT), () =>
   console.log(`Server up and running at port ${process.env.PORT}`)
