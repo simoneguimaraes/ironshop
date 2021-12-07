@@ -21,7 +21,7 @@ router.post("/establishment", isAuthenticated, isAdmin, async (req, res) => {
   }
 });
 
-// cRud Read (GET) (Lista) 
+// cRud Read (GET) (Lista)
 
 router.get("/establishment", isAuthenticated, async (req, res) => {
   try {
@@ -71,17 +71,55 @@ router.get(
   }
 );
 
-// cRud Read (GET) (Detalhe) - if na order(admin) populate
-router.get("/establishment/:id", isAuthenticated, async (req, res) => {
+// cRud Read (GET) (Detalhe) - Não é admin
+router.get(
+  "/establishment/details/:id",
+  isAuthenticated,
+  
+  async (req, res) => {
+    try {
+      const establishment = await EstablishmentModel.findOne({
+        _id: req.params.id,
+      })
+        .populate({
+          path: "products",
+          model: "Product",
+        })
+        .populate({
+          path: "reviews",
+          model: "Reviews",
+        });
+      if (!establishment) {
+        return res.status(404).json({ msg: "Estabelecimento não encontrado." });
+      }
+      res.status(200).json(establishment);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json(err);
+    }
+  }
+);
+// cRud Read (GET) (Detalhe) - Admin -> mostrar os dados do pedido
+router.get("/establishment/admin/details/:id", isAuthenticated, isAdmin, async (req, res) => {
   try {
     const establishment = await EstablishmentModel.findOne({
       _id: req.params.id,
-    });
-
+    })
+      .populate({
+        path: "products",
+        model: "Product",
+      })
+      .populate({
+        path: "reviews",
+        model: "Reviews",
+      })
+      .populate({
+        path: "orders",
+        model: "Order",
+      });
     if (!establishment) {
       return res.status(404).json({ msg: "Estabelecimento não encontrado." });
     }
-
     res.status(200).json(establishment);
   } catch (err) {
     console.log(err);
