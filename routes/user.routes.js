@@ -5,10 +5,28 @@ const UserModel = require("../models/User.model");
 const generateToken = require("../config/jwt.config");
 const isAuthenticated = require("../middlewares/isAuthenticated");
 const attachCurrentUser = require("../middlewares/attachCurrentUser");
+const uploader = require("../config/cloudinary.config");
 
 const salt_rounds = 10;
 
 // Crud (CREATE) - HTTP POST
+
+//Upload de arquivos no Cloudinary
+router.post(
+  "/upload",
+  isAuthenticated,
+  attachCurrentUser,
+  uploader.single("picture"),
+  (req, res) => {
+    if(!req.file){
+      return res.status(500).json({msg: "Upload de arquivo falhou."})
+    }
+    console.log(req.file);
+
+    return res.status(201).json({url: req.file.path})
+  }
+);
+
 // Criar um novo usuário
 router.post("/signup", async (req, res) => {
   // Requisições do tipo POST tem uma propriedade especial chamada body, que carrega a informação enviada pelo cliente
@@ -118,8 +136,6 @@ router.delete(
   isAuthenticated,
   attachCurrentUser,
   async (req, res) => {
-    console.log(req.headers);
-
     try {
       // Buscar o usuário logado que está disponível através do middleware attachCurrentUser
       const loggedInUser = await UserModel.deleteOne({ _id: req.currentUser });
