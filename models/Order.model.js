@@ -13,7 +13,7 @@ const orderSchema = new mongoose.Schema({
     },
 
     itens: {
-        type: [{type: String}],
+        type: mongoose.Types.ObjectId, ref: "Dish",
         required: true
     },
 
