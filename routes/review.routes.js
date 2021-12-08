@@ -6,14 +6,13 @@ const EstablishmentModel = require("../models/Establishment.model");
 const UserModel = require("../models/User.model");
 
 const isAuthenticated = require("../middlewares/isAuthenticated");
-const isAdmin = require("../middlewares/isAuthenticated");
 
 // Cria comentário apenas se o user não é o admin do estabelecimento
 router.post("/review", isAuthenticated, async (req, res) => {
 
   try {
     const user = await UserModel.findOne({ _id: req.user._id });
-    const { comment, establishmentId } = req.body;
+    const { comment, establishmentId, rate } = req.body;
 
     // Saber se o user é o dono do estabelecimento
     if (user.establishmentId.includes(req.body.establishmentId)) {
@@ -28,6 +27,7 @@ router.post("/review", isAuthenticated, async (req, res) => {
       establishmentId: establishmentId,
       userId: user._id,
       username: user.name,
+      rate: rate
     });
 
     await EstablishmentModel.findOneAndUpdate(
@@ -57,7 +57,7 @@ router.patch("/review/edit/:id", isAuthenticated, async (req, res) => {
 
     const reviewUpdated = await ReviewModel.findOneAndUpdate(
       { _id: req.params.id },
-      { $set: { comment: req.body.comment } },
+      { $set: { comment: req.body.comment, rate: req.body.rate } },
       { new: true, runValidators: true }
     );
 
