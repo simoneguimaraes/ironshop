@@ -17,12 +17,12 @@ const UserSchema = new Schema({
     default: "user",
   },
   address: { type: String, required: true },
-  establishments: String,
   pictureUrl: {
     type: String,
     default: "http://www.plasson.com.br/livestock/images/image-not-found.jpg",
     trim: true,
   },
+  userEstablishment: { type: Schema.Types.ObjectId, ref: "Establishment" },
 });
 
 const UserModel = model("User", UserSchema);

@@ -1,6 +1,7 @@
 const { Schema, model } = require("mongoose");
 
 const EstablishmentSchema = new Schema({
+  userAdmin: { type: Schema.Types.ObjectId, ref: "User" },
   name: {
     type: String,
     required: true,

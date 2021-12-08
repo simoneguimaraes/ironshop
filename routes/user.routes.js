@@ -72,11 +72,11 @@ router.post("/login", async (req, res) => {
     const foundUser = await UserModel.findOne({ email });
 
     if (!foundUser) {
-      return res.status(400).json({ msg: "E-mail ou senha incorretos." });
+      return res.status(400).json({ msg: "E-mail or password is incorrect" });
     }
 
     if (!bcrypt.compareSync(password, foundUser.passwordHash)) {
-      return res.status(400).json({ msg: "E-mail ou senha incorretos." });
+      return res.status(400).json({ msg: "E-mail or password is incorrect" });
     }
 
     const token = generateToken(foundUser);
