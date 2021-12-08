@@ -29,6 +29,35 @@ router.post("/", isAuthenticated, attachCurrentUser, async(req, res) => {
     }
 })
 
+
+router.get("/order", isAuthenticated, attachCurrentUser, async (req, res) => {
+    try {
+        if (!req.currentUser) {
+            return res.status(400).json("Logar antes de fazer pedido.")
+        }
+
+        if (req.currentUser.role === "user"){
+            const orderList = await Order.find({user: req.currentUser._id})
+                return res.status(200).json(orderList);
+        }
+
+        if (req.currentUser.role === "admin"){
+            const orderList = await Order.find({establishment: req.currentUser.userEstablishment})
+                return res.status(200).json(orderList);
+        
+        }
+        else{
+            return res.status(400).json("Voce so possui acesso as deliverys");
+        }
+
+    }
+    catch (error) {
+      return res.status(400).json(error);
+    }
+  });
+
+
+
 router.patch("/:_id", isAuthenticated, attachCurrentUser, async (req,res) => {
 
     try {
