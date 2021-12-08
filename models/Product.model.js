@@ -94,4 +94,5 @@ const ProductSchema = new mongoose.Schema({
 });
 
 // Exportar o modelo da coleção
+
 module.exports = mongoose.model("Product", ProductSchema);
