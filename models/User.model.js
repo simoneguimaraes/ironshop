@@ -16,7 +16,8 @@ const UserSchema = new Schema({
     required: true,
     default: "user",
   },
-  estabilishments: [],
+  address: { type: String, required: true },
+  establishments: String,
 });
 
 const UserModel = model("User", UserSchema);
