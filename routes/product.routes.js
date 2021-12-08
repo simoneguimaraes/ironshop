@@ -2,6 +2,24 @@ const isAuthenticated = require("../middlewares/isAuthenticated");
 const express = require("express");
 const router = express.Router();
 const ProductModel = require("../models/Product.model");
+const uploader = require("../config/cloudinary.config");
+
+
+// Upload
+router.post(
+  "/upload",
+  isAuthenticated,
+  uploader.single("picture"),
+  (req, res) => {
+    if (!req.file) {
+      return res.status(500).json({ msg: "Upload de arquivo falhou." });
+    }
+
+    console.log(req.file);
+
+    return res.status(201).json({ url: req.file.path });
+  }
+);  
 
 router.post("/product", isAuthenticated, async (req, res) => {
   try {
