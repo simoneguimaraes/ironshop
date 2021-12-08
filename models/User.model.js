@@ -18,6 +18,11 @@ const UserSchema = new Schema({
   },
   address: { type: String, required: true },
   establishments: String,
+  pictureUrl: {
+    type: String,
+    default: "http://www.plasson.com.br/livestock/images/image-not-found.jpg",
+    trim: true,
+  },
 });
 
 const UserModel = model("User", UserSchema);
