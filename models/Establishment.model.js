@@ -20,25 +20,25 @@ const EstablishmentSchema = new Schema({
     },
     openingTime: {
         type: String,
-        validate: /^([01]?\d|2[0-3]):([0-5]\d):([0-5]\d)$/,
+        validate: /^([01]?\d|2[0-3]):([0-5]\d)$/,
         required: true,
         trim: true
     },
     closingTime: {
         type: String,
-        validate: /^([01]?\d|2[0-3]):([0-5]\d):([0-5]\d)$/,
+        validate: /^([01]?\d|2[0-3]):([0-5]\d)$/,
         required: true,
         trim: true
     },
     category: {
         type: String,
-        enum: ["market", "drugstore", "restaurant"],
+        enum: ["mercado", "farmácia", "restaurante"],
         required: true,
         trim: true
     },
-    products: [{type: Schema.Types.ObjectId, ref: "User"}],
+    products: [{type: Schema.Types.ObjectId, ref: "Product"}],
     orders: [{type: Schema.Types.ObjectId, ref: "Order"}],
-    review: [{type: Schema.Types.ObjectId, ref: "Review"}],
+    reviews: [{type: Schema.Types.ObjectId, ref: "Review"}],
 
 })
 
