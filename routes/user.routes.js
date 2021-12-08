@@ -72,7 +72,6 @@ router.post("/login", async (req, res) => {
 // cRud (READ) - HTTP GET
 // Buscar dados do usuário
 router.get("/profile", isAuthenticated, attachCurrentUser, (req, res) => {
-
   try {
     // Buscar o usuário logado que está disponível através do middleware attachCurrentUser
     const loggedInUser = req.currentUser;
@@ -88,6 +87,31 @@ router.get("/profile", isAuthenticated, attachCurrentUser, (req, res) => {
     return res.status(500).json({ msg: JSON.stringify(err) });
   }
 });
+
+router.patch(
+  "/profile/update",
+  isAuthenticated,
+  attachCurrentUser,
+  async (req, res) => {
+    try {
+      const loggedInUser = req.currentUser;
+
+      if (loggedInUser) {
+        const response = await UserModel.findOneAndUpdate(
+          { _id: loggedInUser._id },
+          { $set: req.body },
+          { new: true, runValidation: true }
+        );
+        return res.status(200).json(response);
+      } else {
+        return res.status(404).json({ msg: "User not found." });
+      }
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ msg: JSON.stringify(err) });
+    }
+  }
+);
 
 router.delete(
   "/profile/delete",

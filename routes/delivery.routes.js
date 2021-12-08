@@ -6,7 +6,7 @@ const Order = require("../models/Order.model")
 const attachCurrentUser = require("../middlewares/attachCurrentUser")
 
 
-router.get("/delivery", attachCurrentUser , async (req, res) => {
+router.get("/", attachCurrentUser , async (req, res) => {
     try {
     
         if (!req.currentUser) {
@@ -33,7 +33,7 @@ router.get("/delivery", attachCurrentUser , async (req, res) => {
     }
 })
 
-router.patch("/delivery/:_id", attachCurrentUser, async (req, res) => {
+router.patch("/:_id", attachCurrentUser, async (req, res) => {
     try {
 
         if (!req.currentUser) {
