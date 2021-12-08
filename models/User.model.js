@@ -17,7 +17,7 @@ const UserSchema = new Schema({
     default: "user",
   },
   address: { type: String, required: true },
-  establishments: String,
+  userEstablishment: { type: Schema.Types.ObjectId, ref: "Establishment" },
 });
 
 const UserModel = model("User", UserSchema);
