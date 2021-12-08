@@ -12,7 +12,7 @@ const UserSchema = new Schema({
   passwordHash: { type: String, required: true },
   role: {
     type: String,
-    enum: ["DELIVERYPERSON", "USER", "ADMIN"],
+    enum: ["delivery-person", "user", "admin"],
     required: true,
     default: "user",
   },
