@@ -4,9 +4,10 @@ const router = express.Router()
 const Delivery = require("../models/Delivery.model")
 const Order = require("../models/Order.model")
 const attachCurrentUser = require("../middlewares/attachCurrentUser")
+const isAuthenticated = require("../middlewares/isAuthenticated");
 
 
-router.get("/", attachCurrentUser , async (req, res) => {
+router.get("/", isAuthenticated, attachCurrentUser , async (req, res) => {
     try {
     
         if (!req.currentUser) {
@@ -33,7 +34,7 @@ router.get("/", attachCurrentUser , async (req, res) => {
     }
 })
 
-router.patch("/:_id", attachCurrentUser, async (req, res) => {
+router.patch("/:_id", isAuthenticated, attachCurrentUser, async (req, res) => {
     try {
 
         if (!req.currentUser) {

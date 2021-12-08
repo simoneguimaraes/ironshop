@@ -12,10 +12,10 @@ const orderSchema = new mongoose.Schema({
         required: true
     },
 
-    itens: {
-        type: mongoose.Types.ObjectId, ref: "Dish",
+    itens: [{
+        type: mongoose.Types.ObjectId, ref: "Product",
         required: true
-    },
+    }],
 
     quantity: {
         type: Number,
