@@ -8,7 +8,7 @@ const EstablishmentModel = require("../models/Establishment.model");
 // CRUD
 
 // Crud Create (POST) - só admin
-router.post("/establishment", isAuthenticated, isAdmin, async (req, res) => {
+router.post("/create", isAuthenticated, isAdmin, async (req, res) => {
   try {
     console.log(req.body);
 
@@ -23,7 +23,7 @@ router.post("/establishment", isAuthenticated, isAdmin, async (req, res) => {
 
 // cRud Read (GET) (Lista)
 
-router.get("/establishment", isAuthenticated, async (req, res) => {
+router.get("/infos", isAuthenticated, async (req, res) => {
   try {
     const establishments = await EstablishmentModel.find()
       .populate({
@@ -44,7 +44,7 @@ router.get("/establishment", isAuthenticated, async (req, res) => {
 
 // cRud Read (GET) (Lista) - Admin
 router.get(
-  "/establishment/admin",
+  "/info/userEstablishment",
   isAuthenticated,
   isAdmin,
   async (req, res) => {
@@ -73,9 +73,9 @@ router.get(
 
 // cRud Read (GET) (Detalhe) - Não é admin
 router.get(
-  "/establishment/details/:id",
+  "/details/:id",
   isAuthenticated,
-  
+
   async (req, res) => {
     try {
       const establishment = await EstablishmentModel.findOne({
@@ -100,78 +100,73 @@ router.get(
   }
 );
 // cRud Read (GET) (Detalhe) - Admin -> mostrar os dados do pedido
-router.get("/establishment/admin/details/:id", isAuthenticated, isAdmin, async (req, res) => {
+router.get(
+  "/admin/orderDetails/:id",
+  isAuthenticated,
+  isAdmin,
+  async (req, res) => {
+    try {
+      const establishment = await EstablishmentModel.findOne({
+        _id: req.params.id,
+      })
+        .populate({
+          path: "products",
+          model: "Product",
+        })
+        .populate({
+          path: "reviews",
+          model: "Reviews",
+        })
+        .populate({
+          path: "orders",
+          model: "Order",
+        });
+      if (!establishment) {
+        return res.status(404).json({ msg: "Estabelecimento não encontrado." });
+      }
+      res.status(200).json(establishment);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json(err);
+    }
+  }
+);
+
+// crUd Update (PATCH) - só admin
+router.patch("/:id", isAuthenticated, isAdmin, async (req, res) => {
   try {
-    const establishment = await EstablishmentModel.findOne({
-      _id: req.params.id,
-    })
-      .populate({
-        path: "products",
-        model: "Product",
-      })
-      .populate({
-        path: "reviews",
-        model: "Reviews",
-      })
-      .populate({
-        path: "orders",
-        model: "Order",
-      });
-    if (!establishment) {
+    const result = await EstablishmentModel.findOneAndUpdate(
+      { _id: req.params.id },
+      { $set: req.body },
+      { new: true, runValidators: true }
+    );
+
+    if (!result) {
       return res.status(404).json({ msg: "Estabelecimento não encontrado." });
     }
-    res.status(200).json(establishment);
+
+    res.status(200).json(result);
   } catch (err) {
-    console.log(err); 
+    console.log(err);
     res.status(500).json(err);
   }
 });
 
-// crUd Update (PATCH) - só admin
-router.patch(
-  "/establishment/:id",
-  isAuthenticated,
-  isAdmin,
-  async (req, res) => {
-    try {
-      const result = await EstablishmentModel.findOneAndUpdate(
-        { _id: req.params.id },
-        { $set: req.body },
-        { new: true, runValidators: true }
-      );
-
-      if (!result) {
-        return res.status(404).json({ msg: "Estabelecimento não encontrado." });
-      }
-
-      res.status(200).json(result);
-    } catch (err) {
-      console.log(err);
-      res.status(500).json(err);
-    }
-  }
-);
-
 // cruD Delete (DELETE) - só admin
 
-router.delete(
-  "/establishment/:id",
-  isAuthenticated,
-  isAdmin,
-  async (req, res) => {
-    try {
-      const result = await EstablishmentModel.deleteOne({ _id: req.params.id });
+router.delete("/:id", isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const result = await EstablishmentModel.deleteOne({ _id: req.params.id });
 
-      if (result.deletedCount < 1) {
-        return res.status(404).json({ msg: "Estabelecimento não encontrado" });
-      }
-
-      res.status(200).json({});
-    } catch (err) {
-      console.log(err);
-      res.status(500).json(err);
+    if (result.deletedCount < 1) {
+      return res.status(404).json({ msg: "Estabelecimento não encontrado" });
     }
+
+    res.status(200).json({});
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
   }
-);
+});
 
 module.exports = router;

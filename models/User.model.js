@@ -17,7 +17,7 @@ const UserSchema = new Schema({
     default: "user",
   },
   address: { type: String, required: true },
-  userEstablishment: { type: Schema.Types.ObjectId, ref: "Establishment" }
+  userEstablishment: { type: Schema.Types.ObjectId, ref: "Establishment" },
 });
 
 const UserModel = model("User", UserSchema);
