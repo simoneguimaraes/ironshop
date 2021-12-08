@@ -1,20 +1,36 @@
 const router = require("express").Router();
 
 const isAuthenticated = require("../middlewares/isAuthenticated");
-const isAdmin = require("../middlewares/isAuthenticated");
+const isAdmin = require("../middlewares/isAdmin");
+const attachCurrentUser = require("../middlewares/attachCurrentUser");
 
 const EstablishmentModel = require("../models/Establishment.model");
+const UserModel = require("../models/User.model");
 
 // CRUD
 
 // Crud Create (POST) - só admin
-router.post("/create", isAuthenticated, isAdmin, async (req, res) => {
+router.post("/create", isAuthenticated, attachCurrentUser, async (req, res) => {
   try {
-    console.log(req.body);
+    const user = await UserModel.findOne({ _id: req.currentUser._id });
 
-    const result = await EstablishmentModel.create(req.body);
+    if (!user.userEstablishment) {
+      const result = await EstablishmentModel.create({
+        ...req.body,
+        userAdmin: req.currentUser._id,
+      });
 
-    res.status(201).json(result);
+      await UserModel.findOneAndUpdate(
+        {
+          _id: req.currentUser._id,
+        },
+        { role: "admin", userEstablishment: result._id }
+      );
+
+      res.status(201).json(result);
+    } else {
+      res.status(409).json({ message: "User already have a establishment." });
+    }
   } catch (err) {
     console.log(err);
     res.status(500).json(err);
@@ -32,7 +48,7 @@ router.get("/infos", isAuthenticated, async (req, res) => {
       })
       .populate({
         path: "reviews",
-        model: "Reviews",
+        model: "Review",
       });
 
     res.status(200).json(establishments);
@@ -46,27 +62,31 @@ router.get("/infos", isAuthenticated, async (req, res) => {
 router.get(
   "/info/userEstablishment",
   isAuthenticated,
+  attachCurrentUser,
   isAdmin,
   async (req, res) => {
     try {
-      const establishments = await EstablishmentModel.find()
+      const user = await UserModel.findOne({ _id: req.currentUser._id });
+      const establishment = await EstablishmentModel.findOne({
+        _id: user.userEstablishment,
+      })
         .populate({
           path: "products",
           model: "Product",
         })
         .populate({
           path: "reviews",
-          model: "Reviews",
+          model: "Review",
         })
         .populate({
           path: "orders",
           model: "Order",
         });
 
-      res.status(200).json(establishments);
+      res.status(200).json(establishment);
     } catch (err) {
       console.log(err);
-      res.status(500).json(err);
+      res.status(404).json(err);
     }
   }
 );
@@ -87,10 +107,10 @@ router.get(
         })
         .populate({
           path: "reviews",
-          model: "Reviews",
+          model: "Review",
         });
       if (!establishment) {
-        return res.status(404).json({ msg: "Estabelecimento não encontrado." });
+        return res.status(404).json({ message: "Establishment not found." });
       }
       res.status(200).json(establishment);
     } catch (err) {
@@ -99,32 +119,59 @@ router.get(
     }
   }
 );
-// cRud Read (GET) (Detalhe) - Admin -> mostrar os dados do pedido
-router.get(
-  "/admin/orderDetails/:id",
+// // cRud Read (GET) (Detalhe) - Admin -> mostrar os dados do pedido
+// router.get(
+//   "/admin/orderDetails/:id",
+//   isAuthenticated,
+//   attachCurrentUser,
+//   isAdmin,
+//   async (req, res) => {
+//     try {
+//       const establishment = await EstablishmentModel.findOne({
+//         _id: req.params.id,
+//       })
+//         .populate({
+//           path: "products",
+//           model: "Product",
+//         })
+//         .populate({
+//           path: "reviews",
+//           model: "Review",
+//         })
+//         .populate({
+//           path: "orders",
+//           model: "Order",
+//         });
+//       if (!establishment) {
+//         return res.status(404).json({ msg: "Estabelecimento não encontrado." });
+//       }
+//       res.status(200).json(establishment);
+//     } catch (err) {
+//       console.log(err);
+//       res.status(500).json(err);
+//     }
+//   }
+// );
+
+// crUd Update (PATCH) - só admin
+router.patch(
+  "/:id",
   isAuthenticated,
+  attachCurrentUser,
   isAdmin,
   async (req, res) => {
     try {
-      const establishment = await EstablishmentModel.findOne({
-        _id: req.params.id,
-      })
-        .populate({
-          path: "products",
-          model: "Product",
-        })
-        .populate({
-          path: "reviews",
-          model: "Reviews",
-        })
-        .populate({
-          path: "orders",
-          model: "Order",
-        });
-      if (!establishment) {
-        return res.status(404).json({ msg: "Estabelecimento não encontrado." });
+      const result = await EstablishmentModel.findOneAndUpdate(
+        { _id: req.params.id },
+        { $set: req.body },
+        { new: true, runValidators: true }
+      );
+
+      if (!result) {
+        return res.status(404).json({ message: "Establishment not found" });
       }
-      res.status(200).json(establishment);
+
+      res.status(200).json(result);
     } catch (err) {
       console.log(err);
       res.status(500).json(err);
@@ -132,41 +179,27 @@ router.get(
   }
 );
 
-// crUd Update (PATCH) - só admin
-router.patch("/:id", isAuthenticated, isAdmin, async (req, res) => {
-  try {
-    const result = await EstablishmentModel.findOneAndUpdate(
-      { _id: req.params.id },
-      { $set: req.body },
-      { new: true, runValidators: true }
-    );
-
-    if (!result) {
-      return res.status(404).json({ msg: "Estabelecimento não encontrado." });
-    }
-
-    res.status(200).json(result);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json(err);
-  }
-});
-
 // cruD Delete (DELETE) - só admin
 
-router.delete("/:id", isAuthenticated, isAdmin, async (req, res) => {
-  try {
-    const result = await EstablishmentModel.deleteOne({ _id: req.params.id });
+router.delete(
+  "/:id",
+  isAuthenticated,
+  attachCurrentUser,
+  isAdmin,
+  async (req, res) => {
+    try {
+      const result = await EstablishmentModel.deleteOne({ _id: req.params.id });
 
-    if (result.deletedCount < 1) {
-      return res.status(404).json({ msg: "Estabelecimento não encontrado" });
+      if (result.deletedCount < 1) {
+        return res.status(404).json({ msg: "Establishment not found" });
+      }
+
+      res.status(200).json({ message: "Establishment deleted successfully" });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json(err);
     }
-
-    res.status(200).json({});
-  } catch (err) {
-    console.log(err);
-    res.status(500).json(err);
   }
-});
+);
 
 module.exports = router;
