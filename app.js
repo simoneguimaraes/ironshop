@@ -13,6 +13,9 @@ app.use(cors({ origin: process.env.REACT_APP_URL }));
 
 const userRouter = require("./routes/user.routes");
 const establishmentRouter = require("./routes/establishment.routes");
+const deliveryRouter = require("./routes/delivery.routes")
+
+app.use("/api/delivery", deliveryRouter)
 const reviewRouter = require("./routes/review.routes");
 
 app.use("/api/user", userRouter);
