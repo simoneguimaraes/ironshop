@@ -9,20 +9,20 @@ const attachCurrentUser = require("../middlewares/attachCurrentUser")
 router.get("/delivery", attachCurrentUser , async (req, res) => {
     try {
     
-        if (!user) {
+        if (!req.currentUser) {
             res.status(400).json("Usuário não logado")
         }
 
-        if ( user.role === "DELIVERYPERSON") {
-            if (user.available) {
-                const deliveries = await Delivery.find({$or: [{deliveryPerson_id: user._id}, {status: "Created"}]})
+        if ( req.currentUser.role === "DELIVERYPERSON") {
+            if (req.currentUser.available) {
+                const deliveries = await Delivery.find({$or: [{deliveryPerson_id: req.currentUser._id}, {status: "Created"}]})
             }
-            if (!user.available) {
-                const deliveries = await Delivery.find({deliveryPerson_id: user._id})
+            if (!req.currentUser.available) {
+                const deliveries = await Delivery.find({deliveryPerson_id: req.currentUser._id})
             }
         }
-        if ( user.role === "ADMIN") {
-            const deliveries = await Delivery.find({establishment_id : { $in : user.establishments}})
+        if ( req.currentUser.role === "ADMIN") {
+            const deliveries = await Delivery.find({establishment_id : { $in : req.currentUser.establishments}})
         }
         res.status(200).json(deliveries)
 
@@ -33,9 +33,14 @@ router.get("/delivery", attachCurrentUser , async (req, res) => {
     }
 })
 
-router.patch("delivery/:_id", attachCurrentUser, async (req, res) => {
+router.patch("/delivery/:_id", attachCurrentUser, async (req, res) => {
     try {
-        const updatedDelivery = await Delivery.findOneAndUpdate({$and: [{_id: req.params._id}, {deliveryPerson_id: user._id}]}, req.body, {new: true, runValidators:true})
+
+        if (!req.currentUser) {
+            return res.status(400).json("Usuário não logado.")
+        }
+
+        const updatedDelivery = await Delivery.findOneAndUpdate({$and: [{_id: req.params._id}, {deliveryPerson_id: req.currentUser._id}]}, req.body, {new: true, runValidators:true})
 
         if (req.body.status) {
             if (req.body.status === "accepted"){
